@@ -53,10 +53,8 @@
 
     .panel { display: none; flex-direction: column; flex: 1; overflow: hidden; }
     .panel.active { display: flex; }
-
     .messages { flex: 1; overflow-y: auto; padding: 16px; }
 
-    /* Chat bubbles */
     .chat-msg { margin-bottom: 10px; }
     .chat-msg.mine { text-align: right; }
     .chat-msg.theirs { text-align: left; }
@@ -68,9 +66,8 @@
     .msg-delete { display: none; background: none; border: none; color: var(--danger); cursor: pointer; font-size: 0.75rem; margin-left: 6px; }
     body.admin-mode .msg-delete { display: inline; }
 
-    /* Q&A */
     .qa-item { margin-bottom: 10px; background: white; border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; }
-    .upvote-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; padding: 4px 8px; border-radius: 6px; border: 1.5px solid var(--border); background: var(--bg); flex-shrink: 0; min-width: 40px; }
+    .upvote-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; padding: 4px 8px; border-radius: 6px; border: 1.5px solid var(--border); background: var(--bg); flex-shrink: 0; min-width: 40px; transition: all 0.2s; }
     .upvote-btn.voted { background: var(--teal-light); border-color: var(--teal); }
     .upvote-btn.voted .upvote-arrow, .upvote-btn.voted .upvote-count { color: var(--teal); font-weight: 600; }
     .upvote-arrow { font-size: 0.9rem; color: var(--muted); line-height: 1; }
@@ -118,9 +115,7 @@
   </div>
 </header>
 
-<div class="admin-banner" id="adminBanner">
-  🔒 Admin mode — delete buttons enabled
-</div>
+<div class="admin-banner" id="adminBanner">🔒 Admin mode — delete buttons enabled</div>
 
 <div class="name-bar">
   <label>Your name:</label>
@@ -157,7 +152,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, push, remove, onChildAdded, onChildRemoved, onValue, runTransaction }
+  import { getDatabase, ref, push, remove, onChildAdded, onChildRemoved, onChildChanged, runTransaction }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   const ADMIN_PASSWORD = "SLEEPING_BEAUTY";
@@ -172,7 +167,7 @@
     appId: "1:416579557251:web:f2e06d11c5a32af89ec8b6"
   };
 
-  // Admin tap
+  // Admin
   let tapCount = 0, tapTimer = null, isAdmin = false;
   const modalOverlay  = document.getElementById('modalOverlay');
   const passwordInput = document.getElementById('passwordInput');
@@ -232,11 +227,11 @@
     });
   });
 
-  // ── CHAT using onChildAdded ──
+  // ── CHAT ──
   const chatRef  = ref(db, 'chat');
   const chatMsgs = document.getElementById('chatMessages');
   const chatIn   = document.getElementById('chatInput');
-  let chatInitialized = false;
+  let chatReady  = false;
 
   chatIn.addEventListener('input', () => autoGrow(chatIn));
   chatIn.addEventListener('keydown', e => { if (e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendChat(); } });
@@ -250,43 +245,39 @@
     chatIn.style.height = 'auto';
   }
 
-  function appendChatMsg(id, m) {
-    if (!chatInitialized) {
-      chatMsgs.innerHTML = '';
-      chatInitialized = true;
-    }
+  onChildAdded(chatRef, snap => {
+    if (!chatReady) { chatMsgs.innerHTML = ''; chatReady = true; }
+    const m = snap.val();
     const mine = m.session === sessionId;
     const div = document.createElement('div');
     div.className = `chat-msg ${mine ? 'mine' : 'theirs'}`;
-    div.dataset.id = id;
+    div.dataset.id = snap.key;
     div.innerHTML = `
       <div class="msg-name">${esc(m.name||'Anonymous')}</div>
       <span class="msg-bubble">${esc(m.text)}</span>
-      <button class="msg-delete" data-id="${id}" title="Delete">✕</button>
+      <button class="msg-delete" title="Delete">✕</button>
       <div class="msg-time">${timeStr(m.ts)}</div>`;
     div.querySelector('.msg-delete').addEventListener('click', () => {
-      if (confirm('Delete this message?')) remove(ref(db, `chat/${id}`));
+      if (confirm('Delete this message?')) remove(ref(db, `chat/${snap.key}`));
     });
     chatMsgs.appendChild(div);
     chatMsgs.scrollTop = chatMsgs.scrollHeight;
-  }
-
-  // Listen for new messages one at a time
-  onChildAdded(chatRef, snap => {
-    appendChatMsg(snap.key, snap.val());
   });
 
-  // Remove deleted messages from DOM
   onChildRemoved(chatRef, snap => {
     const el = chatMsgs.querySelector(`[data-id="${snap.key}"]`);
     if (el) el.remove();
   });
 
-  // ── Q&A using onValue (needs full list for vote sorting) ──
+  // ── Q&A ──
   const qaRef  = ref(db, 'qa');
   const qaMsgs = document.getElementById('qaMessages');
   const qaIn   = document.getElementById('qaInput');
   const qaCnt  = document.getElementById('qaCount');
+  let qaReady  = false;
+
+  // Store all questions in memory so we can re-sort on vote change
+  const qaItems = {};
 
   qaIn.addEventListener('input', () => autoGrow(qaIn));
   qaIn.addEventListener('keydown', e => { if (e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendQA(); } });
@@ -300,9 +291,9 @@
     qaIn.style.height = 'auto';
   }
 
-  onValue(qaRef, snap => {
-    const items = [];
-    snap.forEach(c => items.push({ id: c.key, ...c.val() }));
+  function renderQA() {
+    const items = Object.entries(qaItems).map(([id, v]) => ({ id, ...v }));
+    items.sort((a,b) => (b.votes||0)-(a.votes||0));
 
     qaCnt.style.display = items.length ? 'inline-flex' : 'none';
     qaCnt.textContent = items.length;
@@ -312,12 +303,11 @@
       return;
     }
 
-    items.sort((a,b) => (b.votes||0)-(a.votes||0));
     qaMsgs.innerHTML = '';
-
     items.forEach(item => {
       const d = document.createElement('div');
       d.className = 'qa-item';
+      d.dataset.id = item.id;
       d.innerHTML = `
         <button class="upvote-btn ${voted.has(item.id)?'voted':''}" data-id="${item.id}">
           <span class="upvote-arrow">▲</span>
@@ -342,9 +332,29 @@
 
     qaMsgs.querySelectorAll('.qa-delete-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        if (confirm('Delete this question?')) remove(ref(db, `qa/${btn.dataset.id}`));
+        if (confirm('Delete this question?')) {
+          delete qaItems[btn.dataset.id];
+          remove(ref(db, `qa/${btn.dataset.id}`));
+          renderQA();
+        }
       });
     });
+  }
+
+  onChildAdded(qaRef, snap => {
+    if (!qaReady) { qaMsgs.innerHTML = ''; qaReady = true; }
+    qaItems[snap.key] = snap.val();
+    renderQA();
+  });
+
+  onChildChanged(qaRef, snap => {
+    qaItems[snap.key] = snap.val();
+    renderQA();
+  });
+
+  onChildRemoved(qaRef, snap => {
+    delete qaItems[snap.key];
+    renderQA();
   });
 
 </script>
