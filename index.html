@@ -348,7 +348,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, push, remove, onValue, runTransaction, serverTimestamp }
+  import { getDatabase, ref, push, remove, onValue, runTransaction }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   // ══ YOUR ADMIN PASSWORD ══
@@ -454,7 +454,7 @@
 
     function sendChat() {
       const text = chatIn.value.trim(); if (!text) return;
-      push(chatRef, { text, name: getName(), session: sessionId, ts: serverTimestamp() });
+      push(chatRef, { text, name: getName(), session: sessionId, ts: Date.now() });
       chatIn.value = ''; chatIn.style.height = 'auto';
     }
 
@@ -469,7 +469,7 @@
         return;
       }
 
-      const atBottom = chatMsgs.scrollHeight - chatMsgs.scrollTop <= chatMsgs.clientHeight + 60;
+      const atBottom = true;
       chatMsgs.innerHTML = '';
 
       msgs.forEach(m => {
@@ -507,7 +507,7 @@
 
     function sendQA() {
       const text = qaIn.value.trim(); if (!text) return;
-      push(qaRef, { text, name: getName(), session: sessionId, votes: 0, ts: serverTimestamp() });
+      push(qaRef, { text, name: getName(), session: sessionId, votes: 0, ts: Date.now() });
       qaIn.value = ''; qaIn.style.height = 'auto';
     }
 
