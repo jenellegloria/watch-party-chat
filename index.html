@@ -7,141 +7,88 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
   <style>
     :root {
-      --teal: #1a6b58;
-      --teal-light: #e8f4ee;
-      --teal-mid: #2a8f76;
-      --bg: #f7f5f0;
-      --ink: #1a1a1a;
-      --muted: #6b7280;
-      --border: #e5e7eb;
-      --danger: #dc2626;
-      --danger-light: #fef2f2;
+      --teal: #1a6b58; --teal-light: #e8f4ee; --teal-mid: #2a8f76;
+      --bg: #f7f5f0; --ink: #1a1a1a; --muted: #6b7280; --border: #e5e7eb;
+      --danger: #dc2626; --danger-light: #fef2f2;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); display: flex; flex-direction: column; height: 100dvh; }
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--ink);
-      display: flex;
-      flex-direction: column;
-      height: 100dvh;
-    }
-
-    header {
-      background: var(--teal); color: white;
-      padding: 14px 20px; display: flex;
-      align-items: center; justify-content: space-between; flex-shrink: 0;
-    }
-    .header-title {
-      font-family: 'DM Serif Display', serif; font-size: 1rem;
-      font-style: italic; cursor: default; user-select: none;
-    }
+    header { background: var(--teal); color: white; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .header-title { font-family: 'DM Serif Display', serif; font-size: 1rem; font-style: italic; cursor: default; user-select: none; }
     .header-sub { font-size: 0.72rem; opacity: 0.65; margin-top: 2px; }
     .live-badge { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 500; color: rgba(255,255,255,0.85); }
     .live-dot { width: 8px; height: 8px; background: #4ade80; border-radius: 50%; animation: pulse 2s infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-    .admin-banner {
-      display: none; background: #7f1d1d; color: white;
-      padding: 8px 16px; font-size: 0.78rem; font-weight: 500;
-      text-align: center; flex-shrink: 0; letter-spacing: 0.05em;
-    }
+    .admin-banner { display: none; background: #7f1d1d; color: white; padding: 8px 16px; font-size: 0.78rem; font-weight: 500; text-align: center; flex-shrink: 0; }
     .admin-banner.visible { display: block; }
 
-    .modal-overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.5); z-index: 1000;
-      align-items: center; justify-content: center; padding: 24px;
-    }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 24px; }
     .modal-overlay.visible { display: flex; }
     .modal { background: white; border-radius: 12px; padding: 28px 24px; width: 100%; max-width: 320px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
     .modal h2 { font-family: 'DM Serif Display', serif; font-size: 1.1rem; font-weight: 400; margin-bottom: 6px; }
     .modal p { font-size: 0.8rem; color: var(--muted); margin-bottom: 16px; }
-    .modal input { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; margin-bottom: 10px; transition: border-color 0.2s; }
+    .modal input { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.9rem; outline: none; margin-bottom: 10px; }
     .modal input:focus { border-color: var(--teal); }
     .modal input.error { border-color: var(--danger); }
     .modal-error { font-size: 0.75rem; color: var(--danger); margin-bottom: 10px; display: none; }
     .modal-error.visible { display: block; }
     .modal-btns { display: flex; gap: 8px; }
-    .modal-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .modal-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; font-size: 0.88rem; font-weight: 500; cursor: pointer; }
     .modal-btn.primary { background: var(--teal); color: white; }
-    .modal-btn.primary:hover { background: var(--teal-mid); }
     .modal-btn.secondary { background: var(--bg); color: var(--muted); border: 1.5px solid var(--border); }
 
     .name-bar { background: white; border-bottom: 1px solid var(--border); padding: 10px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
     .name-bar label { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
-    .name-bar input { flex: 1; padding: 6px 10px; border: 1.5px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; outline: none; transition: border-color 0.2s; max-width: 220px; }
+    .name-bar input { flex: 1; padding: 6px 10px; border: 1.5px solid var(--border); border-radius: 6px; font-size: 0.85rem; outline: none; max-width: 220px; }
     .name-bar input:focus { border-color: var(--teal); }
     .anon-note { font-size: 0.72rem; color: var(--muted); font-style: italic; }
 
     .tabs { display: flex; background: white; border-bottom: 2px solid var(--border); flex-shrink: 0; }
-    .tab { flex: 1; padding: 12px; text-align: center; font-size: 0.85rem; font-weight: 500; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; user-select: none; }
+    .tab { flex: 1; padding: 12px; text-align: center; font-size: 0.85rem; font-weight: 500; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px; user-select: none; }
     .tab.active { color: var(--teal); border-bottom-color: var(--teal); }
     .tab-count { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; background: var(--teal); color: white; border-radius: 50%; font-size: 0.65rem; margin-left: 5px; vertical-align: middle; }
 
     .panel { display: none; flex-direction: column; flex: 1; overflow: hidden; }
     .panel.active { display: flex; }
 
-    /* KEY FIX: display:block so messages stack naturally */
-    .messages { flex: 1; overflow-y: auto; padding: 16px; display: block; }
+    .messages { flex: 1; overflow-y: auto; padding: 16px; }
 
-    /* Chat messages */
-    .chat-msg { margin-bottom: 10px; display: flex; gap: 6px; align-items: flex-start; max-width: 88%; }
-    .chat-msg.mine { margin-left: auto; flex-direction: row-reverse; }
-    .chat-msg.theirs { margin-right: auto; }
-
-    .msg-content { display: flex; flex-direction: column; gap: 2px; }
-    .chat-msg.mine .msg-content { align-items: flex-end; }
-    .chat-msg.theirs .msg-content { align-items: flex-start; }
-
-    .msg-name { font-size: 0.7rem; color: var(--muted); padding: 0 4px; }
-    .msg-bubble { padding: 9px 13px; border-radius: 14px; font-size: 0.88rem; line-height: 1.45; word-break: break-word; }
+    /* Chat bubbles */
+    .chat-msg { margin-bottom: 10px; }
+    .chat-msg.mine { text-align: right; }
+    .chat-msg.theirs { text-align: left; }
+    .msg-name { font-size: 0.7rem; color: var(--muted); margin-bottom: 2px; }
+    .msg-bubble { display: inline-block; padding: 9px 13px; border-radius: 14px; font-size: 0.88rem; line-height: 1.45; word-break: break-word; max-width: 80%; text-align: left; }
     .chat-msg.mine .msg-bubble { background: var(--teal); color: white; border-bottom-right-radius: 4px; }
     .chat-msg.theirs .msg-bubble { background: white; color: var(--ink); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
-    .msg-time { font-size: 0.65rem; color: var(--muted); padding: 0 4px; }
-
-    .delete-btn {
-      display: none; width: 26px; height: 26px;
-      background: var(--danger-light); border: 1px solid #fca5a5;
-      border-radius: 6px; color: var(--danger); cursor: pointer;
-      font-size: 0.75rem; align-items: center; justify-content: center;
-      flex-shrink: 0; transition: all 0.2s; margin-top: 6px;
-    }
-    .delete-btn:hover { background: var(--danger); color: white; border-color: var(--danger); }
-    body.admin-mode .delete-btn { display: flex; }
+    .msg-time { font-size: 0.65rem; color: var(--muted); margin-top: 2px; }
+    .msg-delete { display: none; background: none; border: none; color: var(--danger); cursor: pointer; font-size: 0.75rem; margin-left: 6px; }
+    body.admin-mode .msg-delete { display: inline; }
 
     /* Q&A */
-    .qa-item { margin-bottom: 10px; background: white; border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; transition: border-color 0.2s; }
-    .qa-item:hover { border-color: var(--teal-mid); }
-
-    .upvote-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; padding: 4px 8px; border-radius: 6px; border: 1.5px solid var(--border); background: var(--bg); transition: all 0.2s; flex-shrink: 0; min-width: 40px; }
-    .upvote-btn:hover { border-color: var(--teal); background: var(--teal-light); }
+    .qa-item { margin-bottom: 10px; background: white; border: 1.5px solid var(--border); border-radius: 8px; padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; }
+    .upvote-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; padding: 4px 8px; border-radius: 6px; border: 1.5px solid var(--border); background: var(--bg); flex-shrink: 0; min-width: 40px; }
     .upvote-btn.voted { background: var(--teal-light); border-color: var(--teal); }
     .upvote-btn.voted .upvote-arrow, .upvote-btn.voted .upvote-count { color: var(--teal); font-weight: 600; }
     .upvote-arrow { font-size: 0.9rem; color: var(--muted); line-height: 1; }
     .upvote-count { font-size: 0.8rem; color: var(--muted); font-weight: 500; }
-
     .qa-body { flex: 1; }
     .qa-question { font-size: 0.9rem; line-height: 1.45; margin-bottom: 5px; }
     .qa-meta { font-size: 0.7rem; color: var(--muted); }
-
-    .qa-delete-btn { display: none; width: 26px; height: 26px; background: var(--danger-light); border: 1px solid #fca5a5; border-radius: 6px; color: var(--danger); cursor: pointer; font-size: 0.75rem; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
-    .qa-delete-btn:hover { background: var(--danger); color: white; border-color: var(--danger); }
+    .qa-delete-btn { display: none; width: 26px; height: 26px; background: var(--danger-light); border: 1px solid #fca5a5; border-radius: 6px; color: var(--danger); cursor: pointer; font-size: 0.75rem; align-items: center; justify-content: center; flex-shrink: 0; }
     body.admin-mode .qa-delete-btn { display: flex; }
 
     .empty-state { padding: 40px; text-align: center; color: var(--muted); font-size: 0.85rem; }
-    .empty-state .icon { font-size: 2.5rem; opacity: 0.4; display: block; margin-bottom: 8px; }
     .loading { text-align: center; padding: 20px; color: var(--muted); font-size: 0.82rem; }
 
     .input-area { background: white; border-top: 1px solid var(--border); padding: 12px 16px; flex-shrink: 0; }
     .input-row { display: flex; gap: 8px; align-items: flex-end; }
-    .input-area textarea { flex: 1; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; line-height: 1.4; resize: none; outline: none; min-height: 40px; max-height: 120px; overflow-y: auto; transition: border-color 0.2s; }
+    .input-area textarea { flex: 1; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; line-height: 1.4; resize: none; outline: none; min-height: 40px; max-height: 120px; overflow-y: auto; }
     .input-area textarea:focus { border-color: var(--teal); }
-    .send-btn { width: 40px; height: 40px; background: var(--teal); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: background 0.2s; flex-shrink: 0; }
-    .send-btn:hover { background: var(--teal-mid); }
+    .send-btn { width: 40px; height: 40px; background: var(--teal); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .input-hint { font-size: 0.7rem; color: var(--muted); margin-top: 5px; }
   </style>
 </head>
@@ -172,7 +119,7 @@
 </header>
 
 <div class="admin-banner" id="adminBanner">
-  🔒 Admin mode — delete buttons are now visible to you only
+  🔒 Admin mode — delete buttons enabled
 </div>
 
 <div class="name-bar">
@@ -210,7 +157,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, push, remove, onValue, runTransaction }
+  import { getDatabase, ref, push, remove, onChildAdded, onChildRemoved, onValue, runTransaction }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   const ADMIN_PASSWORD = "SLEEPING_BEAUTY";
@@ -225,7 +172,7 @@
     appId: "1:416579557251:web:f2e06d11c5a32af89ec8b6"
   };
 
-  // Admin: tap title 5x
+  // Admin tap
   let tapCount = 0, tapTimer = null, isAdmin = false;
   const modalOverlay  = document.getElementById('modalOverlay');
   const passwordInput = document.getElementById('passwordInput');
@@ -271,10 +218,9 @@
   const getName   = () => document.getElementById('nameInput').value.trim() || 'Anonymous';
   const sessionId = Math.random().toString(36).slice(2, 9);
   const voted     = new Set();
-
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const timeStr = ts => ts ? new Date(ts).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }) : '';
   const autoGrow = el => { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 120) + 'px'; };
-  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
   // Tabs
   document.querySelectorAll('.tab').forEach(tab => {
@@ -286,10 +232,11 @@
     });
   });
 
-  // CHAT
+  // ── CHAT using onChildAdded ──
   const chatRef  = ref(db, 'chat');
   const chatMsgs = document.getElementById('chatMessages');
   const chatIn   = document.getElementById('chatInput');
+  let chatInitialized = false;
 
   chatIn.addEventListener('input', () => autoGrow(chatIn));
   chatIn.addEventListener('keydown', e => { if (e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendChat(); } });
@@ -303,40 +250,39 @@
     chatIn.style.height = 'auto';
   }
 
-  onValue(chatRef, snap => {
-    const msgs = [];
-    snap.forEach(c => msgs.push({ id: c.key, ...c.val() }));
-
-    if (!msgs.length) {
-      chatMsgs.innerHTML = `<div class="empty-state"><span class="icon">💬</span>No messages yet — say hello!</div>`;
-      return;
+  function appendChatMsg(id, m) {
+    if (!chatInitialized) {
+      chatMsgs.innerHTML = '';
+      chatInitialized = true;
     }
-
-    chatMsgs.innerHTML = '';
-    msgs.forEach(m => {
-      const mine = m.session === sessionId;
-      const d = document.createElement('div');
-      d.className = `chat-msg ${mine ? 'mine' : 'theirs'}`;
-      d.innerHTML = `
-        <div class="msg-content">
-          <div class="msg-name">${esc(m.name||'Anonymous')}</div>
-          <div class="msg-bubble">${esc(m.text)}</div>
-          <div class="msg-time">${timeStr(m.ts)}</div>
-        </div>
-        <button class="delete-btn" data-id="${m.id}" title="Delete">✕</button>`;
-      chatMsgs.appendChild(d);
+    const mine = m.session === sessionId;
+    const div = document.createElement('div');
+    div.className = `chat-msg ${mine ? 'mine' : 'theirs'}`;
+    div.dataset.id = id;
+    div.innerHTML = `
+      <div class="msg-name">${esc(m.name||'Anonymous')}</div>
+      <span class="msg-bubble">${esc(m.text)}</span>
+      <button class="msg-delete" data-id="${id}" title="Delete">✕</button>
+      <div class="msg-time">${timeStr(m.ts)}</div>`;
+    div.querySelector('.msg-delete').addEventListener('click', () => {
+      if (confirm('Delete this message?')) remove(ref(db, `chat/${id}`));
     });
-
-    chatMsgs.querySelectorAll('.delete-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (confirm('Delete this message?')) remove(ref(db, `chat/${btn.dataset.id}`));
-      });
-    });
-
+    chatMsgs.appendChild(div);
     chatMsgs.scrollTop = chatMsgs.scrollHeight;
+  }
+
+  // Listen for new messages one at a time
+  onChildAdded(chatRef, snap => {
+    appendChatMsg(snap.key, snap.val());
   });
 
-  // Q&A
+  // Remove deleted messages from DOM
+  onChildRemoved(chatRef, snap => {
+    const el = chatMsgs.querySelector(`[data-id="${snap.key}"]`);
+    if (el) el.remove();
+  });
+
+  // ── Q&A using onValue (needs full list for vote sorting) ──
   const qaRef  = ref(db, 'qa');
   const qaMsgs = document.getElementById('qaMessages');
   const qaIn   = document.getElementById('qaInput');
@@ -362,7 +308,7 @@
     qaCnt.textContent = items.length;
 
     if (!items.length) {
-      qaMsgs.innerHTML = `<div class="empty-state"><span class="icon">🙋</span>No questions yet — ask something!</div>`;
+      qaMsgs.innerHTML = `<div class="empty-state">No questions yet — ask something!</div>`;
       return;
     }
 
